@@ -12,13 +12,22 @@ function parsejarData(text) {
  */
 export class Pacient {
   constructor(nom, cognoms, dataNaixement, bascula = new Bascula()) {
+    if (!nom || typeof nom !== 'string' || nom.trim() === '') {
+      throw new Error('El nom no pot estar buit');
+    }
+
+    const fechaParsed = dataNaixement instanceof Date ? dataNaixement : parsejarData(dataNaixement);
+
+    if (fechaParsed > new Date()) {
+      throw new Error('La data de naixement no pot ser posterior a hui');
+    }
+
     this.nom = nom;
     this.cognoms = cognoms;
-    this.dataNaixement = dataNaixement instanceof Date
-      ? dataNaixement
-      : parsejarData(dataNaixement);
+    this.dataNaixement = fechaParsed;
     this.bascula = bascula;
   }
+  // ... resto de métodos de la clase
 
   saludar() {
     return `Hola, soc ${this.nom} ${this.cognoms}`;

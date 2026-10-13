@@ -44,11 +44,8 @@ describe('Pacient — proves unitàries', function () {
     let clock;
 
     beforeEach(function () {
-      // Pasa el objeto Date directamente a useFakeTimers
-      clock = sinon.useFakeTimers({
-        now: new Date(2030, 0, 1).getTime(),
-        toFake: ['Date']
-      });
+      // Simula la fecha fija 1 de enero de 2030
+      clock = sinon.useFakeTimers(new Date(2030, 0, 1));
     });
 
     afterEach(function () {
@@ -57,7 +54,9 @@ describe('Pacient — proves unitàries', function () {
 
     it('calcula l\'edat correcta respecte a la data simulada del sistema', function () {
       const pacient = new Pacient('Laia', 'Ferrer Soler', '16/03/1988');
-      expect(pacient.obtenirEdat()).to.equal(41);
+      // Para asegurar la compatibilidad con el objeto Date del modulo, instanciamos la fecha actual simulada
+      const edat = pacient.obtenirEdat(new Date());
+      expect(edat).to.equal(41);
     });
   });
   
@@ -79,5 +78,22 @@ describe('Pacient — proves unitàries', function () {
   it('té una bàscula associada per defecte', function () {
     expect(pacient.obtenirBascula()).to.exist;
     expect(pacient.calcularIMC()).to.equal(0);
+  });
+});
+
+// NUEVAS PRUEBAS ACT 6 - Validacion paciente
+describe('Validació de dades al constructor de Pacient', function () {
+  it('rebutja un nom buit o que només conté espais', function () {
+    expect(() => new Pacient('', 'Ferrer Soler', '16/03/1988')).to.throw('El nom no pot estar buit');
+    expect(() => new Pacient('   ', 'Ferrer Soler', '16/03/1988')).to.throw('El nom no pot estar buit');
+  });
+
+  it('rebutja una data de naixement posterior a la data actual', function () {
+    const dataFutura = new Date();
+    dataFutura.setFullYear(dataFutura.getFullYear() + 1); // Fecha el año que viene
+
+    expect(() => new Pacient('Laia', 'Ferrer Soler', dataFutura)).to.throw(
+      'La data de naixement no pot ser posterior a hui'
+    );
   });
 });
